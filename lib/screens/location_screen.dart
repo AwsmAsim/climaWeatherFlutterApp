@@ -1,3 +1,4 @@
+import 'package:clima/screens/city_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:clima/utilities/constants.dart';
 import 'package:clima/services/weather.dart';
@@ -25,13 +26,22 @@ class _LocationScreenState extends State<LocationScreen> {
   }
   void updateUI(dynamic wheatherData){
     setState(() {
-    int temp = wheatherData['main']['temp'];
+      if(wheatherData==null)
+        {
+          tempreature=0;
+          city="";
+          weatherDescription="please enable location";
+          return;
+        }
+
+    var temp = wheatherData['main']['temp'];
+      print(temp);
     tempreature= temp.toInt();
     weatherDescription=weather.getMessage(tempreature);
     var cod = wheatherData['cod'];
     weatherCondition=weather.getWeatherIcon(cod);
     city = wheatherData['name'];
-      
+      print(city);
     });
   }
 
@@ -67,7 +77,17 @@ class _LocationScreenState extends State<LocationScreen> {
                     ),
                   ),
                   FlatButton(
-                    onPressed: () {},
+                    onPressed: () async{
+                      var typed = await Navigator.push(context, MaterialPageRoute(builder:(context){
+                        return CityScreen();
+                      }));
+
+                      if(typed!= null)
+                        {
+                          var weatherData = await weather.getCityWeather(typed);
+                          updateUI(weatherData);
+                        }
+                    },
                     child: Icon(
                       Icons.location_city,
                       size: 50.0,
